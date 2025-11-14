@@ -34,8 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutButton) {
         logoutButton.addEventListener('click', (e) => {
             e.preventDefault();
-            // Clear any user session data (like tokens in localStorage)
             console.log('User logging out...');
+            
+            // --- FIXED: Added logic to clear the token ---
+            localStorage.removeItem('ehrms_token');
+            
             // Redirect to login page
             window.location.href = '../index.html';
         });
