@@ -1,92 +1,81 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Get chatbot elements
+    // --- Chatbot UI Toggle ---
     const chatbotToggle = document.getElementById('chatbot-toggle');
     const chatbotWindow = document.getElementById('chatbot-window');
-    const chatbotClose = document.getElementById('chatbot-close');
-    const chatbotMessages = document.getElementById('chatbot-messages');
-    const chatbotForm = document.getElementById('chatbot-form');
-    const chatbotInput = document.getElementById('chatbot-input');
 
-    // Function to add a message to the chat UI
-    function addMessage(message, sender) {
-        if (!chatbotMessages) return;
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
-        
-        if (sender === 'user') {
-            messageElement.classList.add('bg-blue-500', 'text-white', 'self-end', 'rounded-br-none');
-        } else {
-            messageElement.classList.add('bg-gray-200', 'text-gray-800', 'self-start', 'rounded-bl-none');
-        }
-        
-        messageElement.textContent = message;
-        chatbotMessages.appendChild(messageElement);
-        // Scroll to the bottom
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-
-    // --- Event Listeners ---
-
-    // Toggle chatbot window
-    if (chatbotToggle) {
+    if (chatbotToggle && chatbotWindow) {
         chatbotToggle.addEventListener('click', () => {
-            if(chatbotWindow) chatbotWindow.classList.toggle('hidden');
+            chatbotWindow.classList.toggle('hidden');
         });
     }
 
-    // Close chatbot window
-    if (chatbotClose) {
-        chatbotClose.addEventListener('click', () => {
-            if(chatbotWindow) chatbotWindow.classList.add('hidden');
-        });
-    }
+    // --- Chatbot Logic ---
+    const chatForm = document.getElementById('chatbot-form');
+    const chatInput = document.getElementById('chatbot-input');
+    const chatMessages = document.getElementById('chatbot-messages');
 
-    // Handle sending a message
-    if (chatbotForm) {
-        chatbotForm.addEventListener('submit', async (e) => {
+    if (chatForm) {
+        chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!chatbotInput) return;
-            const message = chatbotInput.value.trim();
-            if (!message) return;
+            const query = chatInput.value.trim();
+            if (!query) return;
 
-            // 1. Display user's message immediately
-            addMessage(message, 'user');
-            chatbotInput.value = ''; // Clear input
+            // 1. Get the token
+            const token = localStorage.getItem('ehrms_token');
+            if (!token) {
+                addMessage('Error: Not authenticated. Please log in.', 'bot');
+                return;
+            }
 
-            // 2. Send message to backend API
+            // Add user's message to UI
+            addMessage(query, 'user');
+            chatInput.value = '';
+            chatInput.disabled = true;
+
+            // 2. Set API request options
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // 3. Add the token
+                },
+                body: JSON.stringify({ query })
+            };
+
+            // 4. Send query to the backend
             try {
-                // Get the auth token (assuming it was stored at login)
-                const token = localStorage.getItem('authToken');
-                
-                const response = await fetch('/api/chatbot/query', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Send token for protected routes
-                    },
-                    body: JSON.stringify({ query: message })
-                });
-
+                const response = await fetch('/api/chatbot/query', options);
                 const data = await response.json();
 
-                // 3. Display bot's response
                 if (response.ok && data.success) {
                     addMessage(data.reply, 'bot');
                 } else {
-                    addMessage(data.message || 'Sorry, I encountered an error.', 'bot');
+                    addMessage(data.message || "Sorry, I couldn't get a response.", 'bot');
                 }
-
             } catch (error) {
-                console.error('Chatbot request failed:', error);
-                addMessage('Sorry, I seem to be offline. Please try again later.', 'bot');
+                console.error('Chatbot Error:', error);
+                addMessage('An error occurred. Please try again.', 'bot');
+            } finally {
+                chatInput.disabled = false;
+                chatInput.focus();
             }
         });
     }
 
-    // Add a default welcome message
-    if(chatbotMessages && chatbotMessages.children.length === 0) {
-        setTimeout(() => {
-            addMessage('Hello! How can I help you today with your HR questions?', 'bot');
-        }, 1000);
+    function addMessage(text, sender) {
+        if (!chatMessages) return;
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'my-2', 'break-words');
+
+        if (sender === 'user') {
+            messageElement.classList.add('bg-blue-600', 'text-white', 'self-end', 'ml-auto');
+        } else {
+            messageElement.classList.add('bg-gray-200', 'text-gray-800', 'self-start', 'mr-auto');
+        }
+
+        messageElement.textContent = text;
+        chatMessages.appendChild(messageElement);
+        // Scroll to the bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 });

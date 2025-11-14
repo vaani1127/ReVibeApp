@@ -1,76 +1,48 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const runPayrollButton = document.querySelector('button.bg-blue-600');
+    const runPayrollButton = document.getElementById('run-payroll-button'); // Added an ID for the button
     const payPeriodInput = document.getElementById('pay-month');
-    const updateSlipButtons = document.querySelectorAll('a.text-indigo-600');
+    const statusMessage = document.getElementById('payroll-status'); // Added an ID for status messages
 
-    // 1. Handle "Run Payroll" button click
-    if (runPayrollButton && payPeriodInput) {
+    if (runPayrollButton) {
         runPayrollButton.addEventListener('click', async () => {
             const payPeriod = payPeriodInput.value;
             if (!payPeriod) {
-                // Use a less intrusive notification if possible
-                console.warn('Please select a pay period.');
-                payPeriodInput.focus();
+                if (statusMessage) statusMessage.textContent = 'Please select a pay period.';
                 return;
             }
 
-            // Using a custom modal for confirmation is better than confirm()
-            // For now, we'll log this. A real implementation should use a modal.
-            console.log(`Are you sure you want to run payroll for ${payPeriod}?`);
-            
-            // We'll proceed for this example.
-            console.log(`Running payroll for: ${payPeriod}`);
-            
+            // 1. Get the token from localStorage
+            const token = localStorage.getItem('ehrms_token');
+            if (!token) {
+                if (statusMessage) statusMessage.textContent = 'Error: Not authenticated. Please log in again.';
+                window.location.href = '../index.html'; // Redirect to login
+                return;
+            }
+
+            // 2. Set API request options
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // 3. Add the Authorization header
+                },
+                body: JSON.stringify({ payPeriod })
+            };
+
+            // 4. Send the request
             try {
-                // Get the auth token (assuming it was stored at login)
-                const token = localStorage.getItem('authToken');
-
-                const response = await fetch('/api/payroll/run', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Send the token for protected routes
-                    },
-                    body: JSON.stringify({ payPeriod: payPeriod })
-                });
-
+                const response = await fetch('/api/payroll/run', options);
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    console.log('Payroll run successfully!');
-                    // You would show a success message to the user here
+                    if (statusMessage) statusMessage.textContent = data.message;
                 } else {
-                    console.error(`Error: ${data.message || 'Failed to run payroll.'}`);
+                    if (statusMessage) statusMessage.textContent = data.message || 'Failed to run payroll.';
                 }
-
             } catch (error) {
-                console.error('Run Payroll request failed:', error);
-                // Show an error message to the user
+                console.error('Payroll Error:', error);
+                if (statusMessage) statusMessage.textContent = 'An error occurred.';
             }
-        });
-    }
-
-    // 2. Handle "Update Slip" button clicks (example)
-    if (updateSlipButtons) {
-        updateSlipButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                // Find the closest row to get employee data
-                const row = e.target.closest('tr');
-                const employeeId = row.cells[0].textContent;
-                
-                console.log(`Request to update slip for Employee ID: ${employeeId}`);
-                
-                // Here you would typically open a modal (pop-up)
-                // with a form to update this employee's slip details.
-                alert(`Opening update form for Employee: ${employeeId}`);
-                
-                // Example of what you would do next:
-                // 1. Open a modal.
-                // 2. Fetch current slip details: GET /api/payroll/slips/${employeeId}?period=...
-                // 3. Populate the modal form.
-                // 4. On modal form submit, send data: POST /api/payroll/slips/update
-            });
         });
     }
 });
