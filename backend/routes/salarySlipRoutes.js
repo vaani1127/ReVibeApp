@@ -6,14 +6,14 @@ const authMiddleware = require('../middleware/authMiddleware');
 // All routes in this file are protected
 router.use(authMiddleware);
 
-// @route   GET /api/salary-slip/:employeeId
-// @desc    Get all salary slips for an employee
-// @access  Private
-router.get('/:employeeId', salarySlipController.getEmployeeSlips);
+// @route   GET /api/salary-slip/my-slips
+// @desc    Get all salary slips for the logged-in employee
+// @access  Private (Employee only)
+router.get('/my-slips', salarySlipController.getMySlips);
 
-// @route   PUT /api/salary-slip/update/:slipId
-// @desc    Update a specific salary slip (e.g., add bonus, correct deduction)
-// @access  Private (HR/Admin)
-router.put('/update/:slipId', salarySlipController.updateSalarySlip);
+// @route   PUT /api/salary-slip/:employeeId/:slipId
+// @desc    Update a specific salary slip (for HR/Admin)
+// @access  Private (HR/Admin only)
+router.put('/:employeeId/:slipId', salarySlipController.updateSalarySlip);
 
 module.exports = router;

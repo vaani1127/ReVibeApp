@@ -1,40 +1,88 @@
+const asyncHandler = require('../utils/asyncHandler');
+const Employee = require('../models/employeeModel');
+const mongoose = require('mongoose');
+
 /**
- * Controller for Payroll Management
+ * @desc    Run payroll for all employees
+ * @route   POST /api/payroll/run
+ * @access  Private (HR/Admin only)
  */
-
-// Mock function to "run payroll"
-exports.runPayroll = (req, res) => {
-    const { payPeriod } = req.body;
-
-    if (!payPeriod) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Pay period is required.' 
-        });
+exports.runPayroll = asyncHandler(async (req, res) => {
+    // 1. Check if user is HR or Admin
+    if (req.user.role !== 'hr' && req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Not authorized to perform this action' });
     }
 
-    // --- Mock Logic ---
-    // In a real app, this is where you would:
-    // 1. Verify user permissions (are they an HR admin?).
-    // 2. Connect to the database.
-    // 3. Fetch all active employees.
-    // 4. For each employee, calculate salary, deductions (tax, etc.), and net pay.
-    // 5. Save the generated salary slip for each employee.
-    // 6. Log this payroll run in an audit table.
-    
-    console.log(`[Payroll Controller] Received request to run payroll for: ${payPeriod}`);
-    
-    // Simulate a successful payroll run
-    res.status(200).json({
-        success: true,
-        message: `Payroll successfully processed for ${payPeriod}.`,
-        data: {
-            processedCount: 150, // Mock data
-            totalPayout: 7500000 // Mock data
-        }
-    });
-};
+    const { payPeriod } = req.body; // e.g., "2025-11"
+    if (!payPeriod) {
+        return res.status(400).json({ success: false, message: 'Pay period is required.' });
+    }
 
-// TODO: Add controller functions for salary slip updates
-// exports.updateSalarySlip = (req, res) => { ... };
-// exports.getEmployeeSlip = (req, res) => { ... };
+    // Use a session for transactions
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        // 2. Find all employees
+        const employees = await Employee.find().session(session);
+
+        if (!employees || employees.length === 0) {
+            await session.abortTransaction();
+            return res.status(404).json({ success: false, message: 'No employees found to process.' });
+        }
+
+        let processedCount = 0;
+
+        // 3. Loop through each employee and generate a slip
+        for (const employee of employees) {
+            // Check if slip for this period already exists
+            const slipExists = employee.salarySlips.some(slip => slip.payPeriod === payPeriod);
+            
+            if (slipExists) {
+                continue; // Skip if slip already exists for this month
+            }
+
+            // --- 4. Simple Salary Calculation ---
+            const basic = employee.compensation.basicSalary;
+            // Example Allowance: 10% of basic
+            const allowanceAmount = basic * 0.10;
+            const allowances = [{ name: 'Special Allowance', amount: allowanceAmount }];
+            // Example Deduction: 5% of basic
+            const deductionAmount = basic * 0.05;
+            const deductions = [{ name: 'Tax', amount: deductionAmount }];
+
+            const netPay = (basic + allowanceAmount) - deductionAmount;
+            // --- End Calculation ---
+
+            const newSlip = {
+                payPeriod,
+                basicSalary: basic,
+                allowances,
+                deductions,
+                netPay,
+                generatedAt: new Date()
+            };
+
+            // 5. Add the new slip to the employee's document
+            employee.salarySlips.push(newSlip);
+            await employee.save({ session });
+            processedCount++;
+        }
+
+        // 6. Commit the transaction
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({ 
+            success: true, 
+            message: `Payroll processed successfully for ${processedCount} employees.` 
+        });
+
+    } catch (error) {
+        // If anything fails, roll back
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Payroll Run Error:', error);
+        res.status(500).json({ success: false, message: 'Server error during payroll processing.', error: error.message });
+    }
+});

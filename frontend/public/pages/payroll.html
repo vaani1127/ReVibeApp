@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EHRMS - Payroll Management</title>
+    <title>EHRMS - Payroll</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type_alias="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Heroicons CDN -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Link to your custom stylesheet -->
     <link rel="stylesheet" href="../style.css">
+    <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,6 +22,7 @@
 <body class="bg-gray-100">
 
     <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 flex-shrink-0 w-64 overflow-y-auto transition-transform duration-300 ease-in-out transform -translate-x-full bg-white shadow-lg md:translate-x-0 md:static">
             <div class="flex items-center justify-center h-20 bg-blue-600">
                 <a href="dashboard.html" class="text-2xl font-bold text-white">EHRMS Portal</a>
@@ -31,6 +36,7 @@
                     <ion-icon name="person-circle-outline" class="w-6 h-6"></ion-icon>
                     <span class="ml-4">Profile Management</span>
                 </a>
+                <!-- Active Link -->
                 <a href="payroll.html" class="flex items-center px-6 py-3 text-white bg-blue-700">
                     <ion-icon name="cash-outline" class="w-6 h-6"></ion-icon>
                     <span class="ml-4">Payroll</span>
@@ -38,12 +44,14 @@
             </nav>
         </aside>
 
+        <!-- Main content -->
         <div class="flex-1 flex flex-col">
+            <!-- Header -->
             <header class="flex items-center justify-between h-20 px-6 bg-white border-b border-gray-200">
                 <button id="sidebar-toggle" class="text-gray-600 md:hidden focus:outline-none">
                     <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
                 </button>
-                <h2 class="text-2xl font-semibold text-gray-800">Payroll Management</h2>
+                <h2 class="text-2xl font-semibold text-gray-800">Payroll</h2>
                 <div class="relative">
                     <button id="user-menu-button" class="flex items-center focus:outline-none">
                         <img class="w-10 h-10 rounded-full" src="../images/profile-pic.png" alt="User Avatar">
@@ -57,69 +65,109 @@
                 </div>
             </header>
 
+            <!-- Page Content -->
             <main class="flex-1 p-6 overflow-y-auto">
-                <div class="p-6 bg-white rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold text-gray-800">Run Payroll</h3>
-                    <p class="mt-2 text-gray-600">Generate and process payroll for all employees for the selected month.</p>
-                    <div class="mt-4 flex items-end space-x-4">
-                        <div>
-                            <label for="pay-month" class="block text-sm font-medium text-gray-700">Pay Period</label>
-                            <input type="month" id="pay-month" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" value="2025-11">
+
+                <!-- Loading Spinner (will be hidden) -->
+                <div id="loading-spinner" class="flex items-center justify-center h-64">
+                    <ion-icon name="refresh-outline" class="w-12 h-12 text-blue-600 animate-spin"></ion-icon>
+                    <span class="ml-4 text-gray-700">Loading Payroll Data...</span>
+                </div>
+
+                <!-- 
+                  SECTION 1: ADMIN/HR VIEW 
+                  This is hidden by default. 'payroll.js' will show it if the user is HR.
+                -->
+                <div id="admin-payroll-view" class="hidden">
+                    <!-- Feature 1: Payroll Management -->
+                    <div class="p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-800">Run Payroll</h3>
+                        <p class="mt-2 text-gray-600">Generate and process payroll for all employees for the selected month.</p>
+                        <div class="mt-4 flex items-end space-x-4">
+                            <div>
+                                <label for="pay-month" class="block text-sm font-medium text-gray-700">Pay Period</label>
+                                <input type="month" id="pay-month" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" value="2025-11">
+                            </div>
+                            <button id="run-payroll-button" class="px-6 py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                                Run Payroll
+                            </button>
                         </div>
-                        <button class="px-6 py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                            Run Payroll
-                        </button>
+                        <div id="payroll-status" class="mt-4 text-sm"></div>
+                    </div>
+
+                    <!-- Feature 2: Salary Slip Update -->
+                    <div class="mt-8 bg-white rounded-lg shadow-md">
+                        <h3 class="p-6 text-xl font-semibold text-gray-800 border-b">Salary Slip Management</h3>
+                        <div class="p-6">
+                            <input type="text" placeholder="Search by Employee ID or Name..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <!-- Employee Salary Slip Table -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <!-- Example Row 1 -->
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">EMP1001</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Anil Sharma</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">IT Services</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Generated</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="#" class="text-blue-600 hover:text-blue-900">View</a>
+                                            <a href="#" class="ml-4 text-indigo-600 hover:text-indigo-900">Update Slip</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-8 bg-white rounded-lg shadow-md">
-                    <h3 class="p-6 text-xl font-semibold text-gray-800 border-b">Salary Slip Management</h3>
-                    <div class="p-6">
-                        <input type="text" placeholder="Search by Employee ID or Name..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                                    <th class_alias="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">EMP1001</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Anil Sharma</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">IT Services</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Generated</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900">View</a>
-                                        <a href="#" class="ml-4 text-indigo-600 hover:text-indigo-900">Update Slip</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">EMP1002</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Sunita Verma</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Finance</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900">View</a>
-                                        <a href="#" class="ml-4 text-indigo-600 hover:text-indigo-900">Update Slip</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <!-- 
+                  SECTION 2: EMPLOYEE VIEW
+                  This is hidden by default. 'payroll.js' will show it if the user is an Employee.
+                -->
+                <div id="employee-payroll-view" class="hidden">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <h3 class="p-6 text-xl font-semibold text-gray-800 border-b">My Salary Slips</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay Period</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generated On</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Pay</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <!-- This table body will be filled by payroll.js -->
+                                <tbody id="salary-slip-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Dynamic rows will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="no-slips-message" class="hidden p-6 text-center text-gray-500">
+                            You do not have any salary slips generated yet.
+                        </div>
                     </div>
                 </div>
+
             </main>
         </div>
     </div>
+    
+    <!-- Load main.js (for layout) and payroll.js (for this page) -->
     <script src="../scripts/main.js"></script>
+    <script src="../scripts/payroll.js"></script>
 </body>
 </html>
