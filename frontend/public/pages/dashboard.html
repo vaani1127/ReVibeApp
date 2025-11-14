@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHRMS - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type_alias="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex h-screen bg-gray-100">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 flex-shrink-0 w-64 overflow-y-auto transition-transform duration-300 ease-in-out transform -translate-x-full bg-white shadow-lg md:translate-x-0 md:static">
+            <div class="flex items-center justify-center h-20 bg-blue-600">
+                <a href="dashboard.html" class="text-2xl font-bold text-white">EHRMS Portal</a>
+            </div>
+            <nav class="mt-6">
+                <a href="dashboard.html" class="flex items-center px-6 py-3 text-white bg-blue-700">
+                    <ion-icon name="grid-outline" class="w-6 h-6"></ion-icon>
+                    <span class="ml-4">Dashboard</span>
+                </a>
+                <a href="profile-management.html" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100">
+                    <ion-icon name="person-circle-outline" class="w-6 h-6"></ion-icon>
+                    <span class="ml-4">Profile Management</span>
+                </a>
+                <a href="payroll.html" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100">
+                    <ion-icon name="cash-outline" class="w-6 h-6"></ion-icon>
+                    <span class="ml-4">Payroll</span>
+                </a>
+                </nav>
+        </aside>
+
+        <div class="flex-1 flex flex-col">
+            <header class="flex items-center justify-between h-20 px-6 bg-white border-b border-gray-200">
+                <button id="sidebar-toggle" class="text-gray-600 md:hidden focus:outline-none">
+                    <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
+                </button>
+                
+                <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
+
+                <div class="relative">
+                    <button id="user-menu-button" class="flex items-center focus:outline-none">
+                        <img class="w-10 h-10 rounded-full" src="../images/profile-pic.png" alt="User Avatar">
+                        <span class="ml-2 hidden md:inline">Welcome, User</span>
+                        <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-1 hidden md:inline"></ion-icon>
+                    </button>
+                    <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden">
+                        <a href="profile-management.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</a>
+                        <a href="#" id="logout-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 p-6 overflow-y-auto">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div class="p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700">My Profile</h3>
+                        <p class="mt-2 text-gray-600">View and update your personal and job details.</p>
+                        <a href="profile-management.html" class="inline-block mt-4 text-blue-600 hover:underline">Go to Profile &rarr;</a>
+                    </div>
+                    <div class="p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700">View Salary Slip</h3>
+                        <p class="mt-2 text-gray-600">Access and download your monthly salary slips.</p>
+                        <a href="#" class="inline-block mt-4 text-blue-600 hover:underline">View Slips &rarr;</a>
+                    </div>
+                    <div class="p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700">Leave Balance</h3>
+                        <p class="mt-2 text-gray-600">Check your available leave balance and history.</p>
+                        <a href="#" class="inline-block mt-4 text-blue-600 hover:underline">Apply for Leave &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-white rounded-lg shadow-md">
+                    <h3 class="p-6 text-xl font-semibold text-gray-800 border-b">Announcements</h3>
+                    <ul class="divide-y divide-gray-200">
+                        <li class="p-6">
+                            <h4 class="font-medium text-gray-900">New Holiday Policy Announced</h4>
+                            <p class="mt-1 text-sm text-gray-600">Posted on: 12-Nov-2025</p>
+                        </li>
+                        <li class="p-6">
+                            <h4 class="font-medium text-gray-900">Tax Declaration Deadline</h4>
+                            <p class="mt-1 text-sm text-gray-600">Please submit your tax declarations by 30th Nov.</p>
+                        </li>
+                    </ul>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+/* --- Form Input Placeholder ---
+  Makes placeholder text a bit lighter so it doesn't 
+  compete with filled-in text.
+*/
+::placeholder {
+    color: #9ca3af; /* Tailwind's gray-400 */
+    opacity: 1; /* Firefox fix */
+}
+
+/* --- Modern, Clean Scrollbar (Webkit) ---
+  This is a small detail that makes the whole site feel more
+  modern and less clunky.
+*/
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Light gray track */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db; /* Tailwind's gray-300 */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af; /* Tailwind's gray-400 */
+}

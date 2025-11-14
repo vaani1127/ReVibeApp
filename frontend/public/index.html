@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHRMS - Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to your custom stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom style for Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="relative flex flex-col m-6 space-y-8 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0">
+            
+            <!-- Left Side (Branding & Welcome) -->
+            <div class="relative p-8 md:p-12">
+                <h1 class="font-bold text-3xl text-gray-800 mb-4">Welcome Back</h1>
+                <p class="max-w-sm mb-8 text-gray-600">
+                    Log in to access your dashboard, manage payroll, and update your employee profile.
+                </p>
+                <!-- You can add a logo here -->
+                <!-- <img src="images/logo.png" alt="Company Logo" class="w-32"> -->
+                <div class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                    <h2 class="font-semibold text-lg text-blue-800">For Support:</h2>
+                    <p class="mt-2 text-sm text-blue-700">
+                        Please contact the HR department at <a href="mailto:support@ehrms.gov.in" class="underline font-medium">support@ehrms.gov.in</a> for any login issues.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Side (Login Form) -->
+            <div class="relative p-8 md:p-12 bg-gray-50 rounded-r-2xl">
+                <div class="w-80 md:w-96">
+                    <h2 class="font-bold text-2xl text-gray-800 mb-6">Employee Login</h2>
+                    
+                    <form id="login-form" class="space-y-6">
+                        <div>
+                            <label for="employee-id" class="block mb-2 text-sm font-medium text-gray-700">Employee ID / Username</label>
+                            <input 
+                                type="text" 
+                                id="employee-id"
+                                name="employee-id"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter your ID"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Password</label>
+                            <input 
+                                type="password" 
+                                id="password"
+                                name="password"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter your password"
+                            >
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="remember-me" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+                            </div>
+                            <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+                        </div>
+
+                        <!-- Login Button -->
+                        <div>
+                            <button 
+                                type="submit" 
+                                class="w-full px-6 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300"
+                            >
+                                Sign In
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Error Message Area -->
+                    <div id="login-error" class="mt-4 text-center text-sm text-red-600">
+                        <!-- Error messages will be inserted here by auth.js -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Link to your authentication script -->
+    <script src="scripts/auth.js"></script>
+</body>
+</html>
