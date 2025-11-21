@@ -22,7 +22,7 @@
       "dest": "/frontend/public/scripts/$1"
     },
     {
-      "src": "/images/(.*)",
+      "src": "/images/(.*)", 
       "dest": "/frontend/public/images/$1"
     },
     {
