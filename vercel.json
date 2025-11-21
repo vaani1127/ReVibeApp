@@ -4,17 +4,17 @@
     {
       "src": "backend/server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "frontend/public/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
+    // 1. ROUTE API CALLS TO THE BACKEND FUNCTION (Fixes the 404 on /api/auth/login)
     {
       "src": "/api/(.*)",
       "dest": "backend/server.js"
     },
+    
+    // 2. ROUTE SPECIFIC STATIC ASSET FOLDERS (Ensures frontend files are served correctly)
+    // The 'dest' path starts with / because Vercel requires the full path from the project root.
     {
       "src": "/pages/(.*)",
       "dest": "/frontend/public/pages/$1"
@@ -24,9 +24,15 @@
       "dest": "/frontend/public/scripts/$1"
     },
     {
+      "src": "/images/(.*)",
+      "dest": "/frontend/public/images/$1"
+    },
+    {
       "src": "/style.css",
       "dest": "/frontend/public/style.css"
     },
+    
+    // 3. ROUTE ROOT (/) AND CATCH-ALL TO INDEX.HTML (For client-side routing)
     {
       "src": "/(.*)",
       "dest": "/frontend/public/index.html"
