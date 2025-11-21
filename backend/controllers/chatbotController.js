@@ -46,7 +46,8 @@ exports.handleQuery = asyncHandler(async (req, res) => {
         return res.status(500).json({ success: false, message: 'Chatbot service is not configured.' });
     }
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    // --- UPDATED THIS LINE ---
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
     const payload = {
         contents: [{ parts: [{ text: query }] }],

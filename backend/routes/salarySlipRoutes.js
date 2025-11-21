@@ -11,6 +11,18 @@ router.use(authMiddleware);
 // @access  Private (Employee only)
 router.get('/my-slips', salarySlipController.getMySlips);
 
+// --- ADD THIS ROUTE ---
+// @route   GET /api/salary-slip/all-slips
+// @desc    Get all slips for all employees (for Admin)
+// @access  Private (HR/Admin only)
+router.get('/all-slips', salarySlipController.getAllSlips);
+
+// --- ADD THIS ROUTE ---
+// @route   GET /api/salary-slip/:employeeId/:slipId
+// @desc    Get a specific salary slip (for Admin)
+// @access  Private (HR/Admin only)
+router.get('/:employeeId/:slipId', salarySlipController.getSlipDetails);
+
 // @route   PUT /api/salary-slip/:employeeId/:slipId
 // @desc    Update a specific salary slip (for HR/Admin)
 // @access  Private (HR/Admin only)

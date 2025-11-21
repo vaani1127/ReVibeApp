@@ -21,6 +21,71 @@ exports.getMySlips = asyncHandler(async (req, res) => {
     });
 });
 
+// --- ADD THIS ENTIRE FUNCTION ---
+/**
+ * @desc    Get all slips for all employees (Admin)
+ * @route   GET /api/salary-slip/all-slips
+ * @access  Private (HR/Admin only)
+ */
+exports.getAllSlips = asyncHandler(async (req, res) => {
+    // 1. Check if user is HR/Admin
+    if (req.user.role !== 'hr' && req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    // 2. Use aggregation to get all slips from all employees
+    const allSlips = await Employee.aggregate([
+        // Deconstruct the salarySlips array
+        { $unwind: "$salarySlips" },
+        // Sort by most recent slips first
+        { $sort: { "salarySlips.generatedOn": -1 } },
+        // Project the fields we need for the table
+        {
+            $project: {
+                _id: 0,
+                employeeId: 1,
+                name: { $concat: ["$personalInfo.firstName", " ", "$personalInfo.lastName"] },
+                department: "$jobProfile.department",
+                slip: "$salarySlips" // Pass the whole slip object
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        success: true,
+        slips: allSlips
+    });
+});
+
+// --- ADD THIS ENTIRE FUNCTION ---
+/**
+ * @desc    Get details for a specific salary slip (Admin)
+ * @route   GET /api/salary-slip/:employeeId/:slipId
+ * @access  Private (HR/Admin only)
+ */
+exports.getSlipDetails = asyncHandler(async (req, res) => {
+    // 1. Check if user is HR/Admin
+    if (req.user.role !== 'hr' && req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    const { employeeId, slipId } = req.params;
+
+    // 2. Find the employee
+    const employee = await Employee.findOne({ employeeId: employeeId });
+    if (!employee) {
+        return res.status(404).json({ success: false, message: 'Employee not found' });
+    }
+
+    // 3. Find the specific slip in the sub-array
+    const slip = employee.salarySlips.id(slipId);
+    if (!slip) {
+        return res.status(404).json({ success: false, message: 'Salary slip not found' });
+    }
+
+    res.status(200).json({ success: true, slip: slip });
+});
+
 
 /**
  * @desc    Update a specific salary slip

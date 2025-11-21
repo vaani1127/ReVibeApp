@@ -19,7 +19,8 @@ const generateToken = (res, userId, role, employeeId) => {
  * @access  Public (or Admin-only in a real app)
  */
 exports.registerUser = asyncHandler(async (req, res) => {
-    const { employeeId, password, role, firstName, lastName, email, designation, department } = req.body;
+    // --- UPDATED THIS LINE ---
+    const { employeeId, password, role, firstName, lastName, email, designation, department, basicSalary } = req.body;
 
     // 1. Check if user (based on employeeId or email) already exists
     const userExists = await User.findOne({ employeeId });
@@ -51,8 +52,12 @@ exports.registerUser = asyncHandler(async (req, res) => {
         jobProfile: {
             designation,
             department
+        },
+        // --- ADDED THIS BLOCK ---
+        compensation: {
+            basicSalary: basicSalary || 0
         }
-        // Add other fields as needed (e.g., compensation)
+        // --- END OF ADDED BLOCK ---
     });
 
     // 4. Save both to the database
